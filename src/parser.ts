@@ -205,13 +205,18 @@ function parseItem(
 /**
  * Resolve expressions to numeric indices
  */
-export function resolveRoadmap(data: RoadmapData): ResolvedRoadmap {
+export function resolveRoadmap(
+  data: RoadmapData,
+  customPalette?: string[],
+): ResolvedRoadmap {
   const periodMap = new Map<string, number>();
   data.timePeriods.forEach((p, i) => {
     periodMap.set(p.id.toLowerCase(), i);
     periodMap.set(p.label.toLowerCase(), i);
   });
 
+  const palette =
+    customPalette && customPalette.length > 0 ? customPalette : COLORS;
   let colorIndex = 0;
 
   const resolvedSwimlanes = data.swimlanes.map((swimlane) => ({
@@ -223,6 +228,7 @@ export function resolveRoadmap(data: RoadmapData): ResolvedRoadmap {
         periodMap,
         data.timePeriods.length,
         colorIndex,
+        palette,
       );
       colorIndex++;
       return resolved;
@@ -241,6 +247,7 @@ function resolveItem(
   periodMap: Map<string, number>,
   totalPeriods: number,
   colorIndex: number,
+  palette: string[],
 ): ResolvedItem {
   const startIndex = evaluateExpression(
     item.startExpression,
@@ -275,7 +282,7 @@ function resolveItem(
     startIndex,
     endIndex,
     swimlane: item.swimlane,
-    color: item.color || COLORS[colorIndex % COLORS.length],
+    color: item.color || palette[colorIndex % palette.length],
   };
 }
 

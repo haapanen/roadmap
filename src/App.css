@@ -203,3 +203,72 @@
   border-radius: 3px;
   color: #d1d5db;
 }
+
+/* Palette section */
+.palette-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.palette-section .section-header {
+  margin-bottom: 0.5rem;
+}
+
+.palette-section h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.palette-input {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  resize: vertical;
+  background: #f9fafb;
+}
+
+.palette-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.palette-input::placeholder {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+.palette-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: #f3f4f6;
+  border-radius: 6px;
+}
+
+.palette-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.palette-swatch:hover {
+  transform: scale(1.15);
+}
+
+.btn-small {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}

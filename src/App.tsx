@@ -4,19 +4,35 @@ import { parseRoadmapText, resolveRoadmap, getExampleText } from "./parser";
 import { renderToSVG, downloadSVG } from "./renderer";
 import { copyDrawioToClipboard, downloadDrawio } from "./drawio";
 
+function parsePalette(paletteText: string): string[] {
+  if (!paletteText.trim()) return [];
+
+  // Support both comma-separated and newline-separated colors
+  const colors = paletteText
+    .split(/[,\n]+/)
+    .map((c) => c.trim())
+    .filter((c) => c.length > 0 && /^#?[0-9A-Fa-f]{3,8}$|^[a-zA-Z]+$/.test(c))
+    .map((c) => (c.startsWith("#") || /^[a-zA-Z]+$/.test(c) ? c : `#${c}`));
+
+  return colors;
+}
+
 function App() {
   const [inputText, setInputText] = useState(getExampleText());
+  const [paletteText, setPaletteText] = useState<string>("");
   const [copyStatus, setCopyStatus] = useState<string>("");
+
+  const palette = useMemo(() => parsePalette(paletteText), [paletteText]);
 
   const roadmapData = useMemo(() => {
     try {
       const parsed = parseRoadmapText(inputText);
-      return resolveRoadmap(parsed);
+      return resolveRoadmap(parsed, palette.length > 0 ? palette : undefined);
     } catch (e) {
       console.error("Parse error:", e);
       return null;
     }
-  }, [inputText]);
+  }, [inputText, palette]);
 
   const svgString = useMemo(() => {
     if (!roadmapData) return "";
@@ -98,6 +114,44 @@ Q1, Q2, Q3, Q4
             <code>## Team Name</code> sections with items like
             <code>- Task | start: Q1 | end: Q3</code> or
             <code>- Task | start: Q1 | length: 2</code>
+          </div>
+
+          <div className="palette-section">
+            <div className="section-header">
+              <h3>🎨 Color Palette (optional)</h3>
+              {palette.length > 0 && (
+                <button
+                  className="btn btn-secondary btn-small"
+                  onClick={() => setPaletteText("")}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <textarea
+              className="palette-input"
+              value={paletteText}
+              onChange={(e) => setPaletteText(e.target.value)}
+              placeholder="Paste colors (comma or newline separated):
+#4285F4, #EA4335, #FBBC04
+or
+#4285F4
+#EA4335
+#FBBC04"
+              spellCheck={false}
+            />
+            {palette.length > 0 && (
+              <div className="palette-preview">
+                {palette.map((color, i) => (
+                  <div
+                    key={i}
+                    className="palette-swatch"
+                    style={{ backgroundColor: color }}
+                    title={color}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </section>
 

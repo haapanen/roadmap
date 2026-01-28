@@ -89,6 +89,7 @@ export function generateDrawioXml(roadmap: ResolvedRoadmap): string {
       const startX = leftLabelWidth + item.startIndex * cellWidth + 5;
       const width = (item.endIndex - item.startIndex) * cellWidth - 10;
       const itemY = currentY + 10 + row * (itemHeight + 10);
+      const textColor = getContrastTextColor(item.color);
 
       cells.push(
         createCell(
@@ -99,7 +100,7 @@ export function generateDrawioXml(roadmap: ResolvedRoadmap): string {
           width,
           itemHeight,
           item.color,
-          "#ffffff",
+          textColor,
           false,
         ),
       );
@@ -190,6 +191,77 @@ function assignRows<T extends { startIndex: number; endIndex: number }>(
   }
 
   return result;
+}
+
+/**
+ * Convert a named color to hex using a canvas
+ */
+function colorToHex(color: string): string {
+  // If already a hex color, return as-is
+  if (/^#[0-9A-Fa-f]{3,6}$/.test(color)) {
+    return color;
+  }
+
+  // Use a temporary canvas to convert named colors to hex
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 1;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return "#000000";
+
+  ctx.fillStyle = color;
+  const computedColor = ctx.fillStyle; // Browser converts to hex or rgb
+
+  // If it's already hex, return it
+  if (computedColor.startsWith("#")) {
+    return computedColor;
+  }
+
+  // Parse rgb/rgba format
+  const match = computedColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (match) {
+    const r = parseInt(match[1]).toString(16).padStart(2, "0");
+    const g = parseInt(match[2]).toString(16).padStart(2, "0");
+    const b = parseInt(match[3]).toString(16).padStart(2, "0");
+    return `#${r}${g}${b}`;
+  }
+
+  return "#000000";
+}
+
+/**
+ * Calculate relative luminance of a color
+ * Based on WCAG 2.0 formula
+ */
+function getLuminance(colorInput: string): number {
+  const hex = colorToHex(colorInput);
+  // Remove # if present and handle shorthand
+  let color = hex.replace(/^#/, "");
+  if (color.length === 3) {
+    color = color[0] + color[0] + color[1] + color[1] + color[2] + color[2];
+  }
+
+  // If not a valid hex, return 0 (assume dark background)
+  if (!/^[0-9A-Fa-f]{6}$/.test(color)) {
+    return 0;
+  }
+
+  const r = parseInt(color.slice(0, 2), 16) / 255;
+  const g = parseInt(color.slice(2, 4), 16) / 255;
+  const b = parseInt(color.slice(4, 6), 16) / 255;
+
+  const toLinear = (c: number) =>
+    c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+}
+
+/**
+ * Get contrast text color (black or white) for a background color
+ */
+function getContrastTextColor(bgColor: string): string {
+  const luminance = getLuminance(bgColor);
+  // Use white text for dark backgrounds, black text for light backgrounds
+  return luminance > 0.5 ? "#000000" : "#ffffff";
 }
 
 function escapeXml(text: string): string {
