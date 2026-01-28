@@ -10,7 +10,7 @@
 }
 
 .header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #059669 0%, #065f46 100%);
   color: white;
   padding: 1.5rem 2rem;
   text-align: center;
@@ -19,6 +19,14 @@
 .header h1 {
   margin: 0 0 0.5rem;
   font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.roadmap-icon {
+  flex-shrink: 0;
 }
 
 .header p {
@@ -90,12 +98,12 @@
 }
 
 .btn-primary {
-  background: #667eea;
+  background: #059669;
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #5a67d8;
+  background: #047857;
 }
 
 .btn-secondary {
@@ -122,22 +130,22 @@
 
 .editor:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
 }
 
 .help-text {
   margin-top: 1rem;
   padding: 0.75rem;
-  background: #f0f9ff;
+  background: #ecfdf5;
   border-radius: 6px;
   font-size: 0.8rem;
-  color: #1e40af;
+  color: #065f46;
   line-height: 1.6;
 }
 
 .help-text code {
-  background: #dbeafe;
+  background: #d1fae5;
   padding: 0.125rem 0.375rem;
   border-radius: 3px;
   font-size: 0.75rem;
@@ -236,8 +244,8 @@
 
 .palette-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
 }
 
 .palette-input::placeholder {
@@ -304,7 +312,7 @@
   padding: 0.25rem 0.4rem;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #667eea;
+  color: #059669;
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
@@ -320,8 +328,8 @@
 
 .period-width-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+  border-color: #059669;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
 }
 
 .period-width-unit {
@@ -346,7 +354,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #059669 0%, #065f46 100%);
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -361,7 +369,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #059669 0%, #065f46 100%);
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);

@@ -188,7 +188,43 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>📊 Text to Roadmap</h1>
+        <h1>
+          <svg
+            className="roadmap-icon"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Timeline bars representing a Gantt chart */}
+            <rect
+              x="2"
+              y="4"
+              width="10"
+              height="3"
+              rx="1.5"
+              fill="currentColor"
+            />
+            <rect
+              x="6"
+              y="10"
+              width="12"
+              height="3"
+              rx="1.5"
+              fill="currentColor"
+            />
+            <rect
+              x="10"
+              y="16"
+              width="12"
+              height="3"
+              rx="1.5"
+              fill="currentColor"
+            />
+          </svg>
+          Text to Roadmap
+        </h1>
         <p>Convert text to visual roadmap diagrams</p>
       </header>
 
