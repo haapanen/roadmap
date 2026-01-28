@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import "./App.css";
 import { parseRoadmapText, resolveRoadmap, getExampleText } from "./parser";
 import { renderToSVG, downloadSVG } from "./renderer";
@@ -17,12 +17,77 @@ function parsePalette(paletteText: string): string[] {
   return colors;
 }
 
+interface UrlOptions {
+  palette: string;
+  periodWidth: number;
+  itemHeight: number;
+}
+
+function getOptionsFromUrl(): Partial<UrlOptions> {
+  const params = new URLSearchParams(window.location.search);
+  const options: Partial<UrlOptions> = {};
+
+  const palette = params.get("palette");
+  if (palette !== null) {
+    options.palette = palette;
+  }
+
+  const periodWidth = params.get("periodWidth");
+  if (periodWidth !== null) {
+    const parsed = parseInt(periodWidth, 10);
+    if (!isNaN(parsed) && parsed >= 50) {
+      options.periodWidth = parsed;
+    }
+  }
+
+  const itemHeight = params.get("itemHeight");
+  if (itemHeight !== null) {
+    const parsed = parseInt(itemHeight, 10);
+    if (!isNaN(parsed) && parsed >= 20) {
+      options.itemHeight = parsed;
+    }
+  }
+
+  return options;
+}
+
+function updateUrlWithOptions(options: UrlOptions): void {
+  const params = new URLSearchParams();
+
+  if (options.palette) {
+    params.set("palette", options.palette);
+  }
+  if (options.periodWidth !== 150) {
+    params.set("periodWidth", options.periodWidth.toString());
+  }
+  if (options.itemHeight !== 36) {
+    params.set("itemHeight", options.itemHeight.toString());
+  }
+
+  const newUrl = params.toString()
+    ? `${window.location.pathname}?${params.toString()}`
+    : window.location.pathname;
+
+  window.history.replaceState({}, "", newUrl);
+}
+
 function App() {
+  const urlOptions = useMemo(() => getOptionsFromUrl(), []);
+
   const [inputText, setInputText] = useState(getExampleText());
-  const [paletteText, setPaletteText] = useState<string>("");
-  const [periodWidth, setPeriodWidth] = useState<number>(150);
-  const [itemHeight, setItemHeight] = useState<number>(36);
+  const [paletteText, setPaletteText] = useState<string>(urlOptions.palette ?? "");
+  const [periodWidth, setPeriodWidth] = useState<number>(urlOptions.periodWidth ?? 150);
+  const [itemHeight, setItemHeight] = useState<number>(urlOptions.itemHeight ?? 36);
   const [copyStatus, setCopyStatus] = useState<string>("");
+
+  // Sync options to URL when they change
+  useEffect(() => {
+    updateUrlWithOptions({
+      palette: paletteText,
+      periodWidth,
+      itemHeight,
+    });
+  }, [paletteText, periodWidth, itemHeight]);
 
   const palette = useMemo(() => parsePalette(paletteText), [paletteText]);
 
