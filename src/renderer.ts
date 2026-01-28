@@ -1,7 +1,7 @@
 import type { ResolvedRoadmap } from "./types";
 
 export interface RenderOptions {
-  width: number;
+  periodWidth: number;
   headerHeight: number;
   swimlaneHeight: number;
   itemHeight: number;
@@ -13,7 +13,7 @@ export interface RenderOptions {
 }
 
 const DEFAULT_OPTIONS: RenderOptions = {
-  width: 1200,
+  periodWidth: 150,
   headerHeight: 50,
   swimlaneHeight: 100,
   itemHeight: 36,
@@ -34,8 +34,9 @@ export function renderToSVG(
   const opts = { ...DEFAULT_OPTIONS, ...options };
 
   // Calculate dimensions
-  const contentWidth = opts.width - opts.leftLabelWidth;
-  const periodWidth = contentWidth / Math.max(roadmap.timePeriods.length, 1);
+  const periodWidth = opts.periodWidth;
+  const contentWidth = periodWidth * Math.max(roadmap.timePeriods.length, 1);
+  const totalWidth = opts.leftLabelWidth + contentWidth;
 
   // Calculate swimlane heights based on item count
   const swimlaneHeights = roadmap.swimlanes.map((sl) => {
@@ -49,15 +50,15 @@ export function renderToSVG(
   const totalHeight =
     opts.headerHeight + swimlaneHeights.reduce((a, b) => a + b, 0);
 
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${opts.width}" height="${totalHeight}" viewBox="0 0 ${opts.width} ${totalHeight}">
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}">
 `;
 
   // Background
-  svg += `  <rect width="${opts.width}" height="${totalHeight}" fill="#ffffff"/>\n`;
+  svg += `  <rect width="${totalWidth}" height="${totalHeight}" fill="#ffffff"/>\n`;
 
   // Title
   if (roadmap.title) {
-    svg += `  <text x="${opts.width / 2}" y="20" text-anchor="middle" font-family="${opts.fontFamily}" font-size="18" font-weight="600" fill="#374151">${escapeXml(roadmap.title)}</text>\n`;
+    svg += `  <text x="${totalWidth / 2}" y="20" text-anchor="middle" font-family="${opts.fontFamily}" font-size="18" font-weight="600" fill="#374151">${escapeXml(roadmap.title)}</text>\n`;
   }
 
   // Header row with period labels
@@ -85,10 +86,10 @@ export function renderToSVG(
 
     // Swimlane background (alternating)
     const bgColor = swimlaneIndex % 2 === 0 ? "#ffffff" : "#fafafa";
-    svg += `  <rect x="0" y="${currentY}" width="${opts.width}" height="${height}" fill="${bgColor}"/>\n`;
+    svg += `  <rect x="0" y="${currentY}" width="${totalWidth}" height="${height}" fill="${bgColor}"/>\n`;
 
     // Swimlane separator
-    svg += `  <line x1="0" y1="${currentY}" x2="${opts.width}" y2="${currentY}" stroke="#e5e7eb" stroke-width="1"/>\n`;
+    svg += `  <line x1="0" y1="${currentY}" x2="${totalWidth}" y2="${currentY}" stroke="#e5e7eb" stroke-width="1"/>\n`;
 
     // Swimlane label
     svg += `  <text x="${opts.leftLabelWidth / 2}" y="${currentY + height / 2 + 5}" text-anchor="middle" font-family="${opts.fontFamily}" font-size="${opts.fontSize}" font-weight="600" fill="#1f2937">${escapeXml(swimlane.label)}</text>\n`;
@@ -121,7 +122,7 @@ export function renderToSVG(
   });
 
   // Bottom border
-  svg += `  <line x1="0" y1="${totalHeight - 1}" x2="${opts.width}" y2="${totalHeight - 1}" stroke="#d1d5db" stroke-width="1"/>\n`;
+  svg += `  <line x1="0" y1="${totalHeight - 1}" x2="${totalWidth}" y2="${totalHeight - 1}" stroke="#d1d5db" stroke-width="1"/>\n`;
 
   svg += "</svg>";
 

@@ -17,13 +17,25 @@ function compressForDrawio(xml: string): string {
   return base64;
 }
 
+export interface DrawioOptions {
+  periodWidth: number;
+}
+
+const DEFAULT_DRAWIO_OPTIONS: DrawioOptions = {
+  periodWidth: 150,
+};
+
 /**
  * Generate draw.io compatible XML
  *
  * draw.io uses mxGraph XML format for diagrams
  */
-export function generateDrawioXml(roadmap: ResolvedRoadmap): string {
-  const cellWidth = 150;
+export function generateDrawioXml(
+  roadmap: ResolvedRoadmap,
+  options: Partial<DrawioOptions> = {},
+): string {
+  const opts = { ...DEFAULT_DRAWIO_OPTIONS, ...options };
+  const cellWidth = opts.periodWidth;
   const headerHeight = 40;
   const swimlaneHeight = 80;
   const itemHeight = 30;
@@ -280,8 +292,9 @@ function escapeXml(text: string): string {
  */
 export async function copyDrawioToClipboard(
   roadmap: ResolvedRoadmap,
+  options: Partial<DrawioOptions> = {},
 ): Promise<void> {
-  const xml = generateDrawioXml(roadmap);
+  const xml = generateDrawioXml(roadmap, options);
 
   // Compress for draw.io format (same as file download)
   const compressed = compressForDrawio(xml);
@@ -303,8 +316,9 @@ export async function copyDrawioToClipboard(
 export function downloadDrawio(
   roadmap: ResolvedRoadmap,
   filename: string = "roadmap.drawio",
+  options: Partial<DrawioOptions> = {},
 ): void {
-  const xml = generateDrawioXml(roadmap);
+  const xml = generateDrawioXml(roadmap, options);
 
   // Compress for draw.io file format (URL encode -> deflate -> base64)
   const compressed = compressForDrawio(xml);
