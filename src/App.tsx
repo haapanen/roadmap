@@ -21,11 +21,21 @@ interface UrlOptions {
   palette: string;
   periodWidth: number;
   itemHeight: number;
+  data?: string;
 }
 
 function getOptionsFromUrl(): Partial<UrlOptions> {
   const params = new URLSearchParams(window.location.search);
   const options: Partial<UrlOptions> = {};
+
+  const data = params.get("data");
+  if (data !== null) {
+    try {
+      options.data = decodeURIComponent(atob(data));
+    } catch (e) {
+      console.error("Failed to decode data from URL:", e);
+    }
+  }
 
   const palette = params.get("palette");
   if (palette !== null) {
@@ -74,10 +84,18 @@ function updateUrlWithOptions(options: UrlOptions): void {
 function App() {
   const urlOptions = useMemo(() => getOptionsFromUrl(), []);
 
-  const [inputText, setInputText] = useState(getExampleText());
-  const [paletteText, setPaletteText] = useState<string>(urlOptions.palette ?? "");
-  const [periodWidth, setPeriodWidth] = useState<number>(urlOptions.periodWidth ?? 150);
-  const [itemHeight, setItemHeight] = useState<number>(urlOptions.itemHeight ?? 36);
+  const [inputText, setInputText] = useState(
+    urlOptions.data ?? getExampleText(),
+  );
+  const [paletteText, setPaletteText] = useState<string>(
+    urlOptions.palette ?? "",
+  );
+  const [periodWidth, setPeriodWidth] = useState<number>(
+    urlOptions.periodWidth ?? 150,
+  );
+  const [itemHeight, setItemHeight] = useState<number>(
+    urlOptions.itemHeight ?? 36,
+  );
   const [copyStatus, setCopyStatus] = useState<string>("");
 
   // Sync options to URL when they change
@@ -137,11 +155,35 @@ function App() {
       await navigator.clipboard.writeText(svgString);
       setCopyStatus("Copied SVG to clipboard!");
       setTimeout(() => setCopyStatus(""), 3000);
-    } catch (e) {
+    } catch {
       setCopyStatus("Failed to copy SVG");
       setTimeout(() => setCopyStatus(""), 3000);
     }
   }, [svgString]);
+
+  const handleCopyShareUrl = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      const encodedData = btoa(encodeURIComponent(inputText));
+      params.set("data", encodedData);
+      if (paletteText) {
+        params.set("palette", paletteText);
+      }
+      if (periodWidth !== 150) {
+        params.set("periodWidth", periodWidth.toString());
+      }
+      if (itemHeight !== 36) {
+        params.set("itemHeight", itemHeight.toString());
+      }
+      const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+      await navigator.clipboard.writeText(shareUrl);
+      setCopyStatus("Copied share URL to clipboard!");
+      setTimeout(() => setCopyStatus(""), 3000);
+    } catch {
+      setCopyStatus("Failed to copy URL");
+      setTimeout(() => setCopyStatus(""), 3000);
+    }
+  }, [inputText, paletteText, periodWidth, itemHeight]);
 
   return (
     <div className="app">
@@ -313,6 +355,12 @@ or
                 disabled={!roadmapData}
               >
                 📥 Download .drawio
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={handleCopyShareUrl}
+              >
+                🔗 Copy Share URL
               </button>
             </div>
           </div>
