@@ -21,6 +21,7 @@ function App() {
   const [inputText, setInputText] = useState(getExampleText());
   const [paletteText, setPaletteText] = useState<string>("");
   const [periodWidth, setPeriodWidth] = useState<number>(150);
+  const [itemHeight, setItemHeight] = useState<number>(36);
   const [copyStatus, setCopyStatus] = useState<string>("");
 
   const palette = useMemo(() => parsePalette(paletteText), [paletteText]);
@@ -37,13 +38,13 @@ function App() {
 
   const svgString = useMemo(() => {
     if (!roadmapData) return "";
-    return renderToSVG(roadmapData, { periodWidth });
-  }, [roadmapData, periodWidth]);
+    return renderToSVG(roadmapData, { periodWidth, itemHeight });
+  }, [roadmapData, periodWidth, itemHeight]);
 
   const handleCopyDrawio = useCallback(async () => {
     if (!roadmapData) return;
     try {
-      await copyDrawioToClipboard(roadmapData, { periodWidth });
+      await copyDrawioToClipboard(roadmapData, { periodWidth, itemHeight });
       setCopyStatus("Copied draw.io XML to clipboard!");
       setTimeout(() => setCopyStatus(""), 3000);
     } catch (e) {
@@ -53,7 +54,7 @@ function App() {
       );
       setTimeout(() => setCopyStatus(""), 3000);
     }
-  }, [roadmapData, periodWidth]);
+  }, [roadmapData, periodWidth, itemHeight]);
 
   const handleDownloadSVG = useCallback(() => {
     if (!svgString) return;
@@ -62,8 +63,8 @@ function App() {
 
   const handleDownloadDrawio = useCallback(() => {
     if (!roadmapData) return;
-    downloadDrawio(roadmapData, "roadmap.drawio", { periodWidth });
-  }, [roadmapData, periodWidth]);
+    downloadDrawio(roadmapData, "roadmap.drawio", { periodWidth, itemHeight });
+  }, [roadmapData, periodWidth, itemHeight]);
 
   const handleCopySVG = useCallback(async () => {
     if (!svgString) return;
@@ -182,6 +183,36 @@ or
             <div className="period-width-labels">
               <span>50px</span>
               <span>300px</span>
+            </div>
+          </div>
+
+          <div className="period-width-section">
+            <div className="section-header">
+              <h3>📐 Item Height</h3>
+              <div className="period-width-input-wrapper">
+                <input
+                  type="number"
+                  className="period-width-input"
+                  min="20"
+                  value={itemHeight}
+                  onChange={(e) =>
+                    setItemHeight(Math.max(20, Number(e.target.value) || 20))
+                  }
+                />
+                <span className="period-width-unit">px</span>
+              </div>
+            </div>
+            <input
+              type="range"
+              className="period-width-slider"
+              min="20"
+              max="80"
+              value={Math.min(itemHeight, 80)}
+              onChange={(e) => setItemHeight(Number(e.target.value))}
+            />
+            <div className="period-width-labels">
+              <span>20px</span>
+              <span>80px</span>
             </div>
           </div>
         </section>

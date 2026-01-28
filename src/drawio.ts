@@ -19,10 +19,12 @@ function compressForDrawio(xml: string): string {
 
 export interface DrawioOptions {
   periodWidth: number;
+  itemHeight: number;
 }
 
 const DEFAULT_DRAWIO_OPTIONS: DrawioOptions = {
   periodWidth: 150,
+  itemHeight: 30,
 };
 
 /**
@@ -38,7 +40,7 @@ export function generateDrawioXml(
   const cellWidth = opts.periodWidth;
   const headerHeight = 40;
   const swimlaneHeight = 80;
-  const itemHeight = 30;
+  const itemHeight = opts.itemHeight;
   const leftLabelWidth = 120;
 
   const contentWidth = roadmap.timePeriods.length * cellWidth;
