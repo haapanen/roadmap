@@ -382,3 +382,252 @@
   font-size: 0.7rem;
   color: #9ca3af;
 }
+
+/* Editor mode tabs */
+.editor-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.editor-tab {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+
+.editor-tab:hover {
+  color: #374151;
+  background: #f9fafb;
+}
+
+.editor-tab.active {
+  color: #059669;
+  border-bottom-color: #059669;
+}
+
+/* UI Editor styles */
+.ui-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 600px;
+  padding-right: 0.5rem;
+}
+
+.ui-editor-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ui-editor-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ui-editor-section-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.ui-editor-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.ui-editor-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: #f9fafb;
+}
+
+.ui-editor-input:focus {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.ui-editor-periods-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.ui-editor-period-tag {
+  background: #e5e7eb;
+  color: #374151;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.ui-editor-swimlane {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: #fafafa;
+  margin-bottom: 0.5rem;
+}
+
+.ui-editor-swimlane-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.ui-editor-swimlane-controls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.ui-editor-swimlane-name {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: white;
+}
+
+.ui-editor-swimlane-name:focus {
+  outline: none;
+  border-color: #059669;
+}
+
+.ui-editor-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ui-editor-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.6rem;
+}
+
+.ui-editor-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ui-editor-item-title {
+  flex: 1;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.ui-editor-item-title:focus {
+  outline: none;
+  border-color: #059669;
+}
+
+.ui-editor-item-timing {
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ui-editor-inline-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.ui-editor-select {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background: white;
+}
+
+.ui-editor-select:focus {
+  outline: none;
+  border-color: #059669;
+}
+
+.ui-editor-number {
+  width: 50px;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.ui-editor-number:focus {
+  outline: none;
+  border-color: #059669;
+}
+
+.ui-editor-color {
+  width: 30px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.ui-editor-add-item {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.btn-icon {
+  padding: 0.25rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  background: #e5e7eb;
+  color: #374151;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: #d1d5db;
+}
+
+.btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #fecaca;
+}

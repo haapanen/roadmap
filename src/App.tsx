@@ -3,6 +3,9 @@ import "./App.css";
 import { parseRoadmapText, resolveRoadmap, getExampleText } from "./parser";
 import { renderToSVG, downloadSVG } from "./renderer";
 import { copyDrawioToClipboard, downloadDrawio } from "./drawio";
+import { UIEditor } from "./UIEditor";
+import { roadmapDataToText } from "./roadmapUtils";
+import type { RoadmapData } from "./types";
 
 function parsePalette(paletteText: string): string[] {
   if (!paletteText.trim()) return [];
@@ -84,6 +87,7 @@ function updateUrlWithOptions(options: UrlOptions): void {
 function App() {
   const urlOptions = useMemo(() => getOptionsFromUrl(), []);
 
+  const [editorMode, setEditorMode] = useState<"text" | "ui">("text");
   const [inputText, setInputText] = useState(
     urlOptions.data ?? getExampleText(),
   );
@@ -97,6 +101,27 @@ function App() {
     urlOptions.itemHeight ?? 36,
   );
   const [copyStatus, setCopyStatus] = useState<string>("");
+  const [uiEditorKey, setUiEditorKey] = useState(0);
+
+  // Parse current text for UI editor whenever switching to UI mode
+  const currentUIData = useMemo(() => {
+    try {
+      return parseRoadmapText(inputText);
+    } catch {
+      return undefined;
+    }
+  }, [inputText]);
+
+  const handleUIDataChange = useCallback((data: RoadmapData) => {
+    const text = roadmapDataToText(data);
+    setInputText(text);
+  }, []);
+
+  // When switching to UI mode, increment key to remount with fresh data
+  const handleSwitchToUI = useCallback(() => {
+    setUiEditorKey((k) => k + 1);
+    setEditorMode("ui");
+  }, []);
 
   // Sync options to URL when they change
   useEffect(() => {
@@ -298,18 +323,38 @@ function App() {
         <section className="editor-section">
           <div className="section-header">
             <h2>Input</h2>
+            {editorMode === "text" && (
+              <button
+                className="btn btn-secondary"
+                onClick={() => setInputText(getExampleText())}
+              >
+                Load Example
+              </button>
+            )}
+          </div>
+
+          <div className="editor-tabs">
             <button
-              className="btn btn-secondary"
-              onClick={() => setInputText(getExampleText())}
+              className={`editor-tab ${editorMode === "text" ? "active" : ""}`}
+              onClick={() => setEditorMode("text")}
             >
-              Load Example
+              📝 Text
+            </button>
+            <button
+              className={`editor-tab ${editorMode === "ui" ? "active" : ""}`}
+              onClick={handleSwitchToUI}
+            >
+              🎛️ Visual
             </button>
           </div>
-          <textarea
-            className="editor"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder={`# My Roadmap
+
+          {editorMode === "text" ? (
+            <>
+              <textarea
+                className="editor"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder={`# My Roadmap
 
 ## Periods
 Q1, Q2, Q3, Q4
@@ -317,15 +362,24 @@ Q1, Q2, Q3, Q4
 ## Team Name
 - Task name | start: Q1 | end: Q2
 - Another task | start: Q2 | length: 2`}
-            spellCheck={false}
-          />
-          <div className="help-text">
-            <strong>Format:</strong> Use <code># Title</code> for roadmap title,
-            <code>## Periods</code> followed by comma-separated periods, then{" "}
-            <code>## Team Name</code> sections with items like
-            <code>- Task | start: Q1 | end: Q3</code> or
-            <code>- Task | start: Q1 | length: 2</code>
-          </div>
+                spellCheck={false}
+              />
+              <div className="help-text">
+                <strong>Format:</strong> Use <code># Title</code> for roadmap
+                title,
+                <code>## Periods</code> followed by comma-separated periods,
+                then <code>## Team Name</code> sections with items like
+                <code>- Task | start: Q1 | end: Q3</code> or
+                <code>- Task | start: Q1 | length: 2</code>
+              </div>
+            </>
+          ) : (
+            <UIEditor
+              key={uiEditorKey}
+              initialData={currentUIData}
+              onDataChange={handleUIDataChange}
+            />
+          )}
 
           <div className="palette-section">
             <div className="section-header">
