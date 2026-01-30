@@ -340,16 +340,16 @@ export function getExampleText(): string {
 Q1 2026, Q2 2026, Q3 2026, Q4 2026
 
 ## Frontend Team
-- New Design System | start: Q1 2026 | end: Q2 2026 | color: #4285F4
+- New Design System | start: Q1 2026 | length: 1 | color: #4285F4
 - Dashboard Redesign | start: Q2 2026 | length: 2 | color: #EA4335
-- Mobile App | start: Q3 2026 | end: Q4 2026 | color: #FBBC04
+- Mobile App | start: Q3 2026 | length: 1 | color: #FBBC04
 
 ## Backend Team
-- API v2 | start: Q1 2026 | end: Q3 2026 | color: #34A853
+- API v2 | start: Q1 2026 | length: 2 | color: #34A853
 - Database Migration | start: Q2 2026 | length: 1 | color: #FF6D01
-- Microservices | start: Q3 2026 | end: Q4 2026 | color: #46BDC6
+- Microservices | start: Q3 2026 | length: 1 | color: #46BDC6
 
 ## DevOps
 - CI/CD Pipeline | start: Q1 2026 | length: 1 | color: #9E69AF
-- Kubernetes Setup | start: Q2 2026 | end: Q4 2026 | color: #7BAAF7`;
+- Kubernetes Setup | start: Q2 2026 | length: 2 | color: #7BAAF7`;
 }
