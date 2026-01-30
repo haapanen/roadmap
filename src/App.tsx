@@ -5,6 +5,7 @@ import { renderToSVG, downloadSVG } from "./renderer";
 import { copyDrawioToClipboard, downloadDrawio } from "./drawio";
 import { UIEditor } from "./UIEditor";
 import { roadmapDataToText } from "./roadmapUtils";
+import { InteractiveSVGPreview } from "./InteractiveSVGPreview";
 import type { RoadmapData } from "./types";
 
 function parsePalette(paletteText: string): string[] {
@@ -116,6 +117,114 @@ function App() {
     const text = roadmapDataToText(data);
     setInputText(text);
   }, []);
+
+  // Handle item move from drag-and-drop in the SVG preview
+  const handleItemMove = useCallback(
+    (
+      itemId: string,
+      fromSwimlane: string,
+      toSwimlane: string,
+      newStartPeriod: string,
+    ) => {
+      try {
+        const parsed = parseRoadmapText(inputText);
+
+        // Find the item and update it
+        let itemFound = false;
+        for (const swimlane of parsed.swimlanes) {
+          const itemIndex = swimlane.items.findIndex(
+            (item) => item.id === itemId,
+          );
+          if (itemIndex !== -1) {
+            const item = swimlane.items[itemIndex];
+
+            // Update the start period
+            item.startExpression = newStartPeriod;
+
+            // If moving to a different swimlane
+            if (fromSwimlane !== toSwimlane) {
+              // Remove from current swimlane
+              swimlane.items.splice(itemIndex, 1);
+
+              // Add to target swimlane
+              const targetSwimlane = parsed.swimlanes.find(
+                (sl) => sl.id === toSwimlane,
+              );
+              if (targetSwimlane) {
+                item.swimlane = toSwimlane;
+                targetSwimlane.items.push(item);
+              }
+            }
+
+            itemFound = true;
+            break;
+          }
+        }
+
+        if (itemFound) {
+          const text = roadmapDataToText(parsed);
+          setInputText(text);
+          // Refresh UI editor if in UI mode
+          if (editorMode === "ui") {
+            setUiEditorKey((k) => k + 1);
+          }
+        }
+      } catch (e) {
+        console.error("Error updating item:", e);
+      }
+    },
+    [inputText, editorMode],
+  );
+
+  // Handle item resize from drag-and-drop in the SVG preview
+  const handleItemResize = useCallback(
+    (
+      itemId: string,
+      _swimlaneId: string,
+      newStartIndex: number,
+      newLength: number,
+    ) => {
+      try {
+        const parsed = parseRoadmapText(inputText);
+
+        // Find the item and update it
+        let itemFound = false;
+        for (const swimlane of parsed.swimlanes) {
+          const itemIndex = swimlane.items.findIndex(
+            (item) => item.id === itemId,
+          );
+          if (itemIndex !== -1) {
+            const item = swimlane.items[itemIndex];
+
+            // Get the period label for the new start index
+            const periodIndex = Math.floor(newStartIndex);
+            const period = parsed.timePeriods[periodIndex];
+            if (period) {
+              item.startExpression = period.label;
+            }
+
+            // Update the length expression
+            item.lengthExpression = newLength.toString();
+
+            itemFound = true;
+            break;
+          }
+        }
+
+        if (itemFound) {
+          const text = roadmapDataToText(parsed);
+          setInputText(text);
+          // Refresh UI editor if in UI mode
+          if (editorMode === "ui") {
+            setUiEditorKey((k) => k + 1);
+          }
+        }
+      } catch (e) {
+        console.error("Error resizing item:", e);
+      }
+    },
+    [inputText, editorMode],
+  );
 
   // When switching to UI mode, increment key to remount with fresh data
   const handleSwitchToUI = useCallback(() => {
@@ -529,11 +638,15 @@ or
           </div>
           {copyStatus && <div className="copy-status">{copyStatus}</div>}
           <div className="preview">
-            {svgString ? (
-              <div
-                className="svg-container"
-                dangerouslySetInnerHTML={{ __html: svgString }}
-              />
+            {roadmapData ? (
+              <div className="svg-container">
+                <InteractiveSVGPreview
+                  roadmap={roadmapData}
+                  options={{ periodWidth, itemHeight }}
+                  onItemMove={handleItemMove}
+                  onItemResize={handleItemResize}
+                />
+              </div>
             ) : (
               <div className="preview-placeholder">
                 Enter roadmap text to see preview
