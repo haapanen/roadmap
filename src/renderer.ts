@@ -115,7 +115,33 @@ export function renderToSVG(
       const textColor = getContrastTextColor(item.color);
       const textX = startX + 8;
       const maxTextWidth = itemWidth - 16;
-      svg += `  <text x="${textX}" y="${itemY + opts.itemHeight / 2 + 5}" font-family="${opts.fontFamily}" font-size="${opts.fontSize - 2}" fill="${textColor}">${escapeXml(truncateText(item.title, maxTextWidth, opts.fontSize - 2))}</text>\n`;
+      const textFontSize = opts.fontSize - 2;
+      const lineHeight = textFontSize * 1.2;
+      const verticalPadding = 6;
+      const availableHeight = opts.itemHeight - verticalPadding * 2;
+      const maxLines = Math.max(1, Math.floor(availableHeight / lineHeight));
+
+      let lines = wrapText(item.title, maxTextWidth, textFontSize);
+
+      // Truncate with ellipsis if too many lines
+      if (lines.length > maxLines) {
+        lines = lines.slice(0, maxLines);
+        const lastLine = lines[maxLines - 1];
+        const charWidth = textFontSize * 0.6;
+        const maxChars = Math.floor(maxTextWidth / charWidth);
+        lines[maxLines - 1] =
+          lastLine.length > maxChars - 1
+            ? lastLine.slice(0, maxChars - 1) + "…"
+            : lastLine + "…";
+      }
+
+      const totalTextHeight = lines.length * lineHeight;
+      const textStartY =
+        itemY + (opts.itemHeight - totalTextHeight) / 2 + textFontSize * 0.85;
+
+      lines.forEach((line, lineIndex) => {
+        svg += `  <text x="${textX}" y="${textStartY + lineIndex * lineHeight}" font-family="${opts.fontFamily}" font-size="${textFontSize}" fill="${textColor}">${escapeXml(line)}</text>\n`;
+      });
     });
 
     currentY += height;
@@ -182,17 +208,49 @@ function assignItemRows<T extends { startIndex: number; endIndex: number }>(
   return result;
 }
 
-function truncateText(
-  text: string,
-  maxWidth: number,
-  fontSize: number,
-): string {
+/**
+ * Wrap text to fit within a given width
+ * Returns an array of lines
+ */
+function wrapText(text: string, maxWidth: number, fontSize: number): string[] {
   // Approximate character width
   const charWidth = fontSize * 0.6;
   const maxChars = Math.floor(maxWidth / charWidth);
 
-  if (text.length <= maxChars) return text;
-  return text.slice(0, maxChars - 1) + "…";
+  if (maxChars <= 0) return [text];
+  if (text.length <= maxChars) return [text];
+
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    if (testLine.length <= maxChars) {
+      currentLine = testLine;
+    } else {
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+      // If the word itself is too long, we need to break it
+      if (word.length > maxChars) {
+        let remaining = word;
+        while (remaining.length > maxChars) {
+          lines.push(remaining.slice(0, maxChars - 1) + "-");
+          remaining = remaining.slice(maxChars - 1);
+        }
+        currentLine = remaining;
+      } else {
+        currentLine = word;
+      }
+    }
+  }
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines.length > 0 ? lines : [text];
 }
 
 /**
