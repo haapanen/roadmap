@@ -161,6 +161,72 @@ function App() {
     }
   }, [svgString]);
 
+  const handleCopyPNG = useCallback(async () => {
+    if (!svgString) return;
+    try {
+      // Parse SVG to get dimensions
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
+      const svgElement = svgDoc.documentElement;
+      const width = parseInt(svgElement.getAttribute("width") || "800", 10);
+      const height = parseInt(svgElement.getAttribute("height") || "600", 10);
+
+      // Create canvas with 2x scale for better quality
+      const scale = 2;
+      const canvas = document.createElement("canvas");
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Failed to get canvas context");
+
+      // Fill with white background
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(scale, scale);
+
+      // Create image from SVG
+      const img = new Image();
+      const svgBlob = new Blob([svgString], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      const url = URL.createObjectURL(svgBlob);
+
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0);
+          URL.revokeObjectURL(url);
+          resolve();
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error("Failed to load SVG image"));
+        };
+        img.src = url;
+      });
+
+      // Convert to blob and copy to clipboard
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((b) => {
+          if (b) resolve(b);
+          else reject(new Error("Failed to create PNG blob"));
+        }, "image/png");
+      });
+
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": blob }),
+      ]);
+
+      setCopyStatus("Copied PNG to clipboard!");
+      setTimeout(() => setCopyStatus(""), 3000);
+    } catch (e) {
+      console.error("PNG copy error:", e);
+      setCopyStatus(
+        `Failed to copy PNG: ${e instanceof Error ? e.message : "Unknown error"}`,
+      );
+      setTimeout(() => setCopyStatus(""), 3000);
+    }
+  }, [svgString]);
+
   const handleCopyShareUrl = useCallback(async () => {
     try {
       const params = new URLSearchParams();
@@ -377,6 +443,13 @@ or
                 disabled={!svgString}
               >
                 📋 Copy SVG
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleCopyPNG}
+                disabled={!svgString}
+              >
+                🖼️ Copy PNG
               </button>
               <button
                 className="btn btn-secondary"
