@@ -6,6 +6,7 @@ import { copyDrawioToClipboard, downloadDrawio } from "./drawio";
 import { UIEditor } from "./UIEditor";
 import { roadmapDataToText } from "./roadmapUtils";
 import { InteractiveSVGPreview } from "./InteractiveSVGPreview";
+import { Tutorial, useTutorial } from "./Tutorial";
 import type { RoadmapData } from "./types";
 
 function parsePalette(paletteText: string): string[] {
@@ -87,6 +88,7 @@ function updateUrlWithOptions(options: UrlOptions): void {
 
 function App() {
   const urlOptions = useMemo(() => getOptionsFromUrl(), []);
+  const { showTutorial, endTutorial, resetTutorial } = useTutorial();
 
   const [editorMode, setEditorMode] = useState<"text" | "ui">("text");
   const [inputText, setInputText] = useState(
@@ -387,6 +389,7 @@ function App() {
 
   return (
     <div className="app">
+      {showTutorial && <Tutorial onComplete={endTutorial} />}
       <header className="header">
         <h1>
           <svg
@@ -426,6 +429,11 @@ function App() {
           Text to Roadmap
         </h1>
         <p>Convert text to visual roadmap diagrams</p>
+        <div className="header-actions">
+          <button className="tutorial-restart-btn" onClick={resetTutorial}>
+            <span>❓</span> Show Tutorial
+          </button>
+        </div>
       </header>
 
       <main className="main">
@@ -655,13 +663,6 @@ or
           </div>
         </section>
       </main>
-
-      <footer className="footer">
-        <p>
-          Supports arbitrary time periods • Swimlanes for teams • Mathematical
-          expressions for timing (e.g., <code>Q1+(Q2-Q1)/2</code>)
-        </p>
-      </footer>
     </div>
   );
 }
